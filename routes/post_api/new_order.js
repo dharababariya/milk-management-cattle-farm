@@ -3,7 +3,7 @@ const router = express.Router();
 const knex = require('../../helper/knex');
 const Joi = require('joi');
 
-
+// new order fuction 
 const newOrder = async(req,res)=>{
 
 
@@ -13,21 +13,25 @@ const newOrder = async(req,res)=>{
                         .required()
                         .min(999999999)
                         .max(9999999999),
-        amount : Joi.required(),
+        quantity : Joi.required(),
         product : Joi.required()    
     })
+
     try{
 
         let receiveData={
             phone_number : req.body.phone_number,
-            amount : req.body.amount,
+            quantity : req.body.amount,
             product : req.body.product
         }
+        
+        await authSchema.validateAsync(receiveData)
 
         const result = await knex ('product').select('price').where('product_name',receiveData.product);
+        
         const price = parseInt(result[0].price)
 
-        const ans= price * receiveData.amount;
+        const ans= price * receiveData.quantity;
 
         receiveData.total=ans;
 

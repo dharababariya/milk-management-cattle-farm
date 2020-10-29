@@ -4,13 +4,13 @@ const knex = require('../../helper/knex');
 
 const getProductList = async (req,res)=>{
 
-    const productList = await knex('public.product').select('*')
+    const productList = await knex('product').select('*')
 
     res.send(productList) 
     res.send()  
 
 }
 
-router.get('/login',getProductList);
+router.get('/product_list',getProductList);
 
 module.exports =router;
