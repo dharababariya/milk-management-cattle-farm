@@ -4,10 +4,10 @@ const knex = require('../../helper/knex');
 
 const getProductList = async (req,res)=>{
 
-    const productList = await knex('product').select('*')
+    const productList = await knex('product').select("product_name","price")
 
     res.send(productList) 
-    res.send()  
+    res.end()  
 
 }
 

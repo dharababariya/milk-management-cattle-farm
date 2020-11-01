@@ -7,6 +7,7 @@ var logger = require('morgan');
 
 
 
+
 var app = express();
 
 // view engine setup
@@ -28,6 +29,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/',require('./routes/user_management/user_login'));
 app.use('/',require('./routes/user_management/user_registration'));
 app.use('/',require('./routes/post_api/new_order'))
+app.use('/',require('./routes/update/update_milk_price'))
+app.use('/',require('./routes/get_api/products_get_api'))
+
+
 
 
 

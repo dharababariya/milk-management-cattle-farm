@@ -7,29 +7,25 @@ const updateProductPrice = async (req,res)=>{
 
     const schema = Joi.object({
         product : Joi.string().required(),
-        Price : Joi.number().required()
+        price : Joi.number().required()
     })
 
     try{
         const newProductPrice ={ 
             product : req.body.product,
-            Price : req.body.Price
-                                
+            price : req.body.price                                
         }
+        console.log(newProductPrice)
+
         schema.validateAsync(newProductPrice)
-        const isProductExist= await knex(newProductPrice.product)
 
-        if(isProductExist.length==1){        
-            const output = await knex('product').where({Product : newProductPrice.product}).update("Price",newProductPrice.Price)
-            
-        }
+               
+        const output = await knex('product').where("product_name", newProductPrice.product).update("price", Number(newProductPrice.price))       
 
-            
-
-        res.status(401).json({
+        res.status(200).json({            
             meta: {
                 status: '1',
-                message: 'Product added '
+                message: 'Product Price updated'
             },
             
         });
@@ -49,6 +45,6 @@ const updateProductPrice = async (req,res)=>{
 
 
 
-router.put('/update_product',updateProduct);
+router.put('/update_price',updateProductPrice);
 
 module.exports =router;
