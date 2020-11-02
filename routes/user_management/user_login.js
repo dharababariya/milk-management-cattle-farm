@@ -61,6 +61,6 @@ const userAuthentication = async (req,res)=>{
     
 
 }
-router.get('/login',userAuthentication);
+router.get('/Login',userAuthentication);
 
 module.exports =router;

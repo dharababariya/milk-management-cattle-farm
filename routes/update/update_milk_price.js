@@ -45,6 +45,6 @@ const updateProductPrice = async (req,res)=>{
 
 
 
-router.put('/update_price',updateProductPrice);
+router.put('/updateProductPrice',updateProductPrice);
 
 module.exports =router;

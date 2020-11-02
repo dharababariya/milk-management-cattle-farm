@@ -6,7 +6,6 @@ const Joi = require('joi');
 // new order fuction 
 const newOrder = async(req,res)=>{
 
-
     const authSchema = Joi.object({
         phone_number : Joi
                         .number()
@@ -23,8 +22,7 @@ const newOrder = async(req,res)=>{
             phone_number : req.body.phone_number,
             quantity : req.body.amount,
             product : req.body.product
-        }
-        
+        }        
         await authSchema.validateAsync(receiveData)
 
         const result = await knex ('product').select('price').where('product_name',receiveData.product);

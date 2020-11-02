@@ -69,6 +69,6 @@ const userRegistration = async (req,res)=>{
       }
 }
 
-router.post('/registration',userRegistration)
+router.post('/Registration',userRegistration)
 
 module.exports =router;
