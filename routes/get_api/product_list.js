@@ -6,8 +6,7 @@ const getProductList = async (req,res)=>{
 
     const productList = await knex('product').select("product_name","price")
 
-    res.send(productList) 
-    res.end()  
+    return res.send(productList)   
 
 }
 

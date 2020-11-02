@@ -35,7 +35,7 @@ const newOrder = async(req,res)=>{
 
         const op = await knex ('order').insert(receiveData);
 
-        res.status(200).json({
+        res.status(202).json({
             meta: {
                 status: '1',
                 message: `Total : ${receiveData.total}`

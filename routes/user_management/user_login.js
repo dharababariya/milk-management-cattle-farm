@@ -48,7 +48,6 @@ const userAuthentication = async (req,res)=>{
             }
     }
     catch(err) {
-        console.log('User unvalid*******')
         res.status(401).json({
             meta: {
                 status: '0',

@@ -41,7 +41,7 @@ const userRegistration = async (req,res)=>{
                 receiveData.id=uuidv4();
                 await knex('user_details').insert(receiveData)
 
-                res.status(200).json({
+                res.status(201).json({
                     meta: {
                         status: '1',
                         message: `Registration sucsessful `

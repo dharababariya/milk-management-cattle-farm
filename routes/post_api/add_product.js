@@ -27,7 +27,7 @@ const addProduct = async (req,res)=>{
         const output = await knex('public.product').
         console.log(output)     
 
-        res.status(200).json({
+        res.status(201).json({
             meta: {
                 status: '1',
                 message: 'Product added'
