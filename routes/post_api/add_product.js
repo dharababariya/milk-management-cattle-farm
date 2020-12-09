@@ -1,55 +1,50 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const knex = require('../../helper/knex');
-const Joi = require('joi');
+const knex = require("../../helper/knex");
+const Joi = require("joi");
 
-const addProduct = async (req,res)=>{
-
+const addProduct = async (req, res) => {
+    //joi validation schema
     const schema = Joi.object({
-        product_name : Joi.string().required(),
-        price : Joi.string().required()
-    })
+        product_name: Joi.string().required(),
+        price: Joi.string().required(),
+    });
 
-    try{
-        const newProduct ={ 
-            product_name : req.body.product,
-            price : req.body.price
+    try {
+        //get data from body
+        const newProduct = {
+            product_name: req.body.product,
+            price: req.body.price,
+        };
+
+        await schema.validateAsync(newProduct); // validate data
+
+        // check  prosuct is availabele
+        const isProductExist = await knex("product")
+            .where("product_name", newProduct.product_name)
+            .select("id");
+        if (isProductExist.length != 0) {
+            throw new Error("Product is Alrady Availble");
         }
-        
-        const isProductExist= await knex(product).where('product_name',newProduct.product_name).select("id")
 
-        if(isProductExist.length!=0){
-            throw new Error('Product is Alrady Availble'); 
-        }
+        await knex("product").insert(newProduct);
 
-        const result = schema.validateAsync(newProduct)
-        console.log(result)         
-        const output = await knex('public.product').
-        console.log(output)     
-
-        res.status(201).json({
+        return res.status(201).json({
             meta: {
-                status: '1',
-                message: 'Product added'
+                status: "1",
+                message: "Product added",
             },
-            
+        });
+    } catch (err) {
+        return res.status(401).json({
+            meta: {
+                status: "0",
+                message: `${err}`,
+            },
         });
     }
-    catch(err){
+};
 
-        res.status(401).json({
-            meta: {
-                status: '0',
-                message: `${err}`
-            },
-            
-        });
-    }
+router.post("/addProduct", addProduct);
 
-}
-
-
-
-router.post('/addProduct',addProduct);
-
-module.exports =router;
+module.exports = router;

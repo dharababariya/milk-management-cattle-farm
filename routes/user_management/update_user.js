@@ -2,9 +2,8 @@ const express = require("express");
 const router = express.Router();
 const knex = require("../../helper/knex");
 const Joi = require("joi");
-const { v4: uuidv4 } = require("uuid");
 
-const userRegistration = async (req, res) => {
+const updateUser = async (req, res) => {
     // validation schemz
     const authSchema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
@@ -13,10 +12,9 @@ const userRegistration = async (req, res) => {
                 /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
             )
         ),
-        first_name: Joi.string().required(),
-        last_name: Joi.string().required(),
-        address: Joi.string().required(),
-        role: Joi.string(),
+        first_name: Joi.string(),
+        last_name: Joi.string(),
+        address: Joi.string(),
     });
 
     try {
@@ -27,7 +25,6 @@ const userRegistration = async (req, res) => {
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             address: req.body.address,
-            role: req.body.role,
         };
 
         //validate
@@ -37,19 +34,21 @@ const userRegistration = async (req, res) => {
         const isUserExist = await knex("public.user_details")
             .select("*")
             .where("phone_number", receiveData.phone_number);
+        const phone_number = receiveData.phone_number
+        delete receiveData["phone_number"];
 
         //if not in use then
-        if (isUserExist.length == 0) {
-            receiveData.id = uuidv4();
-            await knex("user_details").insert(receiveData);
+        if (isUserExist.length != 0) {
+            
+            await knex("user_details").where("phone_number",phone_number).update(receiveData);
 
-            return res.status(201).json({
-                Success:"OK"
+            return res.status(200).json({
+                Success: "OK",
             });
         }
         //if in use
         else {
-            throw new Error("registratiion unsucsessfull");
+            throw new Error("update unsucsessfull");
         }
     } catch (err) {
         return res.status(401).json({
@@ -61,6 +60,6 @@ const userRegistration = async (req, res) => {
     }
 };
 
-router.post("/Registration", userRegistration);
+router.post("/updateUser", updateUser);
 
 module.exports = router;
