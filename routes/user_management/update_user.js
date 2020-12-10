@@ -7,14 +7,16 @@ const updateUser = async (req, res) => {
     // validation schemz
     const authSchema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
-        password: Joi.string().pattern(
-            new RegExp(
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-            )
-        ),
-        first_name: Joi.string(),
-        last_name: Joi.string(),
-        address: Joi.string(),
+        password: Joi.string()
+            .required()
+            .pattern(
+                new RegExp(
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+                )
+            ),
+        first_name: Joi.string().required(),
+        last_name: Joi.string().required(),
+        address: Joi.string().required(),
     });
 
     try {
@@ -34,13 +36,15 @@ const updateUser = async (req, res) => {
         const isUserExist = await knex("public.user_details")
             .select("*")
             .where("phone_number", receiveData.phone_number);
-        const phone_number = receiveData.phone_number
+
+        const phone_number = receiveData.phone_number;
         delete receiveData["phone_number"];
 
         //if not in use then
         if (isUserExist.length != 0) {
-            
-            await knex("user_details").where("phone_number",phone_number).update(receiveData);
+            await knex("user_details")
+                .where("phone_number", phone_number)
+                .update(receiveData);
 
             return res.status(200).json({
                 Success: "OK",
