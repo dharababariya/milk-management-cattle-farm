@@ -23,7 +23,7 @@ app.use("/", require("./routes/user_management/update_user"));
 
 
 app.use("/", require("./routes/get_api/product_list"));
-// app.use("/", require("./routes/get_api/get_bill"));
+app.use("/", require("./routes/get_api/bill_total"));
 app.use("/", require("./routes/get_api/order_list"));
 
 
