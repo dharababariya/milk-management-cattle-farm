@@ -6,9 +6,9 @@ const Joi = require("joi");
 // new order fuction
 const newOrder = async (req, res) => {
     //joi validation schema
-    const authSchema = Joi.object({
+    const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
-        quantity: Joi.required(),
+        quantity: Joi.number().required(),
         product: Joi.required(),
     });
 
@@ -20,10 +20,8 @@ const newOrder = async (req, res) => {
             product: req.body.product,
         };
 
-        console.debug(receiveData);
-
-        //validate data
-        await authSchema.validateAsync(receiveData);
+                //validate data
+        await schema.validateAsync(receiveData);
         // get product price from database
         const result = await knex("product")
             .select("price")

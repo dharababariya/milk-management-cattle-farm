@@ -5,7 +5,7 @@ const Joi = require("joi");
 
 const updateUser = async (req, res) => {
     // validation schemz
-    const authSchema = Joi.object({
+    const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
         password: Joi.string()
             .required()
@@ -30,7 +30,7 @@ const updateUser = async (req, res) => {
         };
 
         //validate
-        await authSchema.validateAsync(receiveData);
+        await schema.validateAsync(receiveData);
 
         //check is user phone number in used
         const isUserExist = await knex("public.user_details")

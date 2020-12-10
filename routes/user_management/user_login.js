@@ -6,14 +6,14 @@ const Joi = require("joi");
 //user login validation fuction
 const userAuthentication = async (req, res) => {
     //joi validation schema for login data
-    const authSchema = Joi.object({
+    const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
 
         password: Joi.string().required(),
     });
     try {
         // validate data
-        const result = await authSchema.validateAsync(req.body);
+        const result = await schema.validateAsync(req.body);
 
         //check user in database
         const isUserExist = await knex("user_details")

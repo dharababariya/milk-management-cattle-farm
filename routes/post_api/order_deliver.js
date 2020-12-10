@@ -1,34 +1,48 @@
 const express = require("express");
+const Joi = require("joi");
 const router = express.Router();
 const knex = require("../../helper/knex");
 
 const orderDelivered = async (req, res) => {
+    const schema = Joi.object({
+        orderId: Joi.number().required().min(0),
+    });
+
     try {
         // get data frome body
         const { orderId } = req.body;
+        //data validation
+        await schema.validateAsync({ orderId });
         // chnage order status
-        await knex("order").where("id", orderId).update("status", "1");
-
+        const op = await knex("order")
+            .where({ id: orderId, status : 1 })
+            .update("status", "2");
+        console.log(op)
+        if (op==0){
+            throw new Error("this order is already delever or canceld")
+        }
         // user order details
         const order = await knex("order")
             .select("phone_number", "total")
             .where("id", orderId);
-        //get priviuse bill total
-        let pymentTotal = await knex("pyment_details")
-            .selec("total")
-            .where("phone_number", order.phone_number);
+        console.log(order);
 
-        const total = pymentTotal + order.total; // add new order in bill
+        //get priviuse bill total
+        const pymentTotal = await knex("payment_details")
+            .select("total")
+            .where("phone_number", Number(order[0].phone_number));
+
+        console.log(pymentTotal);
+
+        const total = Number(pymentTotal[0].total) + Number(order[0].total); // add new order in bill
+        console.log(total);
         // save new total in bill
-        await knex("pyment_details")
-            .where("phone_number", order.phone_number)
-            .update("total", total);
+        await knex("payment_details")
+            .update("total", total)
+            .where("phone_number", Number(order[0].phone_number));
 
         return res.status(200).json({
-            meta: {
-                status: "1",
-                message: `${total}`,
-            },
+            status: "OK",
         });
     } catch (err) {
         return res.status(401).json({

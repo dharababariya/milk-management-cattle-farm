@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const userRegistration = async (req, res) => {
     // validation schemz
-    const authSchema = Joi.object({
+    const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
         password: Joi.string().pattern(
             new RegExp(
@@ -31,7 +31,7 @@ const userRegistration = async (req, res) => {
         };
 
         //validate
-        await authSchema.validateAsync(receiveData);
+        await schema.validateAsync(receiveData);
 
         //check is user phone number in used
         const isUserExist = await knex("public.user_details")
@@ -42,9 +42,12 @@ const userRegistration = async (req, res) => {
         if (isUserExist.length == 0) {
             receiveData.id = uuidv4();
             await knex("user_details").insert(receiveData);
-
+            await knex("payment_details").insert({
+                phone_number: receiveData.phone_number,
+                total: 0,
+            });
             return res.status(201).json({
-                Success:"OK"
+                Success: "OK",
             });
         }
         //if in use
