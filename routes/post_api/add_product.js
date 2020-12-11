@@ -7,7 +7,8 @@ const addProduct = async (req, res) => {
     //joi validation schema
     const schema = Joi.object({
         product_name: Joi.string().required(),
-        price: Joi.string().required(),
+        price: Joi.number().required(),
+        quantity: Joi.number().required(),
     });
 
     try {
@@ -15,6 +16,7 @@ const addProduct = async (req, res) => {
         const newProduct = {
             product_name: req.body.product,
             price: req.body.price,
+            quantity: req.body.quantity,
         };
 
         await schema.validateAsync(newProduct); // validate data

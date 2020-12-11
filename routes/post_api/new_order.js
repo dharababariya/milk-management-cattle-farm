@@ -20,11 +20,11 @@ const newOrder = async (req, res) => {
             product: req.body.product,
         };
 
-                //validate data
+        //validate data
         await schema.validateAsync(receiveData);
         // get product price from database
         const result = await knex("product")
-            .select("price")
+            .select("price", "quantity")
             .where("product_name", receiveData.product)
             .limit(1);
 
@@ -36,7 +36,10 @@ const newOrder = async (req, res) => {
 
         // inser in to database
         await knex("order").insert(receiveData);
-        
+        const newQuantity = Number(result[0].quantity) - receiveData.quantity;
+        await knex("product")
+            .update('quantity',newQuantity)
+            .where("product_name", "=", receiveData.product);
         // send resposnce
         return res.status(202).json({
             meta: {

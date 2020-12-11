@@ -16,22 +16,30 @@ const cancelOrder = async (req, res) => {
         //validate data
         await authSchema.validateAsync({ id });
 
-        // get product price from database
-        const result = await knex("order")
+        // get order deatils  from database
+        const orderData = await knex("order")
             .select("*")
             .where("id", id)
             .limit(1);
 
-        if (result[0].status == 2) {
+        //check order status
+        if (orderData[0].status == 2) {
             throw new Error("your order is deleverd ");
         }
 
-        if (result[0].status == 0) {
+        if (orderData[0].status == 0) {
             throw new Error("your order is alrady canceled  ");
         }
 
         // inser in to database
         await knex("order").where("id", id).update({ status: 0 });
+
+        // update product Quantity in product table
+        const currentData = await knex("product").select('*').where('product_name',orderData[0].product)
+
+        const newQuantity = Number(currentData[0].quantity)+Number(orderData[0].quantity)
+
+        await knex('product').update('quantity',newQuantity).where('product_name',orderData[0].product)
 
         // send resposnce
         return res.status(202).json({
@@ -50,6 +58,6 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-router.post("/cancelOrder", cancelOrder);
+router.put("/cancelOrder", cancelOrder);
 
 module.exports = router;

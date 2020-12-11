@@ -25,7 +25,7 @@ const updateProductPrice = async (req, res) => {
             .update("price", Number(newProductPrice.price));
 
         return res.status(200).json({
-            Success: "OK",
+            success: "OK",
         });
     } catch (err) {
         return res.status(400).json({
