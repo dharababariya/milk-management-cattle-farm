@@ -27,6 +27,9 @@ const newOrder = async (req, res) => {
             .select("price", "quantity")
             .where("product_name", receiveData.product)
             .limit(1);
+        if (Number(result[0].quantity) <= 0) {
+            throw new Error(`${result[0].product_name} is outof stock`);
+        }
 
         //calculate total order
         const price = parseInt(result[0].price);
@@ -38,7 +41,7 @@ const newOrder = async (req, res) => {
         await knex("order").insert(receiveData);
         const newQuantity = Number(result[0].quantity) - receiveData.quantity;
         await knex("product")
-            .update('quantity',newQuantity)
+            .update("quantity", newQuantity)
             .where("product_name", "=", receiveData.product);
         // send resposnce
         return res.status(202).json({
