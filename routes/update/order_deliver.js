@@ -15,11 +15,11 @@ const orderDelivered = async (req, res) => {
         await schema.validateAsync({ orderId });
         // chnage order status
         const op = await knex("order")
-            .where({ id: orderId, status : 1 })
+            .where({ id: orderId, status: 1 })
             .update("status", "2");
-        console.log(op)
-        if (op==0){
-            throw new Error("this order is already delever or canceld")
+        console.log(op);
+        if (op == 0) {
+            throw new Error("this order is already delever or canceld");
         }
         // user order details
         const order = await knex("order")
@@ -42,11 +42,11 @@ const orderDelivered = async (req, res) => {
             .where("phone_number", Number(order[0].phone_number));
 
         return res.status(200).json({
-            status: "OK",
+            Success: "OK",
         });
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

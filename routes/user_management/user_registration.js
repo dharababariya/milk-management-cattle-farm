@@ -52,11 +52,11 @@ const userRegistration = async (req, res) => {
         }
         //if in use
         else {
-            throw new Error("registratiion unsucsessfull");
+            return res.status(400).json({ error: "User already exists" });
         }
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

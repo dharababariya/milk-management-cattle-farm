@@ -16,7 +16,7 @@ const addProductStock = async (req, res) => {
             product_name: req.body.product_name,
             quantity: req.body.quantity,
         };
-        
+
         await schema.validateAsync(newData); // validate data
 
         const currentData = await knex("product")
@@ -35,17 +35,12 @@ const addProductStock = async (req, res) => {
             .where("product_name", newData.product_name);
 
         return res.status(201).json({
-            data: {
-                totalQuantity,
-            },
-            meta: {
-                status: "1",
-                message: "success",
-            },
+            data: { totalQuantity },
+            meta: { message: "success" },
         });
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

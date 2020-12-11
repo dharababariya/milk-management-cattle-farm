@@ -56,7 +56,7 @@ const updateUser = async (req, res) => {
         }
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            "error": {
                 status: "0",
                 message: `${err}`,
             },

@@ -28,21 +28,18 @@ const userAuthentication = async (req, res) => {
         // if true
         else {
             return res.status(200).json({
-                meta: {
-                    status: "1",
-                    message: `Hello ${isUserExist[0].first_name}.`,
-                },
+                message: `Hello ${isUserExist[0].first_name}.`,
             });
         }
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },
         });
     }
 };
-router.get("/Login", userAuthentication);
+router.post("/Login", userAuthentication);
 
 module.exports = router;

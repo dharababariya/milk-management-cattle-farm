@@ -35,22 +35,24 @@ const cancelOrder = async (req, res) => {
         await knex("order").where("id", id).update({ status: 0 });
 
         // update product Quantity in product table
-        const currentData = await knex("product").select('*').where('product_name',orderData[0].product)
+        const currentData = await knex("product")
+            .select("*")
+            .where("product_name", orderData[0].product);
 
-        const newQuantity = Number(currentData[0].quantity)+Number(orderData[0].quantity)
+        const newQuantity =
+            Number(currentData[0].quantity) + Number(orderData[0].quantity);
 
-        await knex('product').update('quantity',newQuantity).where('product_name',orderData[0].product)
+        await knex("product")
+            .update("quantity", newQuantity)
+            .where("product_name", orderData[0].product);
 
         // send resposnce
         return res.status(202).json({
-            meta: {
-                status: "1",
-                message: `order cancle`,
-            },
+            message: "order succsesfully canceled",
         });
     } catch (err) {
         return res.status(400).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

@@ -19,7 +19,7 @@ const getBillTotal = async (req, res) => {
         return res.status(200).send(total[0].total);
     }catch(err){
         return res.status(404).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

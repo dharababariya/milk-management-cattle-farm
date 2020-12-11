@@ -27,17 +27,17 @@ const getOrderList = async (req, res) => {
                 .select("*")
                 .where("status", "2");
         } else {
-            throw new Error("not found");
+            return res.status(404).json({ error: 'NotFoundError: Not Found' })
         }
 
         if (orderList.length == 0) {
-            throw new Error("not found orders");
+            return res.status(204).json({ error: 'you not have any order' })
         }
 
         return res.status(200).json(orderList);
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            "error": {
                 status: "0",
                 message: `${err}`,
             },

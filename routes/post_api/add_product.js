@@ -32,14 +32,11 @@ const addProduct = async (req, res) => {
         await knex("product").insert(newProduct);
 
         return res.status(201).json({
-            meta: {
-                status: "1",
-                message: "Product added",
-            },
+            message: "Product added",
         });
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

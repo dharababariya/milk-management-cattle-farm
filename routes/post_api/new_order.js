@@ -45,14 +45,11 @@ const newOrder = async (req, res) => {
             .where("product_name", "=", receiveData.product);
         // send resposnce
         return res.status(202).json({
-            meta: {
-                status: "1",
-                message: `Total : ${receiveData.total}`,
-            },
+            Total: receiveData.total,
         });
     } catch (err) {
         return res.status(401).json({
-            meta: {
+            error: {
                 status: "0",
                 message: `${err}`,
             },

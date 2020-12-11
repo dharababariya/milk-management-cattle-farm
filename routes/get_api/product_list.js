@@ -6,7 +6,7 @@ const getProductList = async (req, res) => {
     // get products from database
     const productList = await knex("product").select("product_name", "price");
 
-    return res.send(productList);
+    return res.status(200).send(productList);
 };
 
 router.get("/productList", getProductList);
