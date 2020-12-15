@@ -36,7 +36,6 @@ const addProductStock = async (req, res) => {
 
         return res.status(201).json({
             data: { totalQuantity },
-            meta: { message: "success" },
         });
     } catch (err) {
         return res.status(401).json({

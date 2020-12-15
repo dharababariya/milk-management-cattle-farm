@@ -7,19 +7,19 @@ const Joi = require("joi");
 const cancelOrder = async (req, res) => {
     //joi validation schema
     const authSchema = Joi.object({
-        id: Joi.number().required(),
+        orderId: Joi.number().required(),
     });
 
     try {
         // get data from body
-        const { id } = req.body;
+        const { orderId } = req.body;
         //validate data
-        await authSchema.validateAsync({ id });
+        await authSchema.validateAsync({ orderId });
 
         // get order deatils  from database
         const orderData = await knex("order")
             .select("*")
-            .where("id", id)
+            .where("id", orderId)
             .limit(1);
 
         //check order status
@@ -32,7 +32,7 @@ const cancelOrder = async (req, res) => {
         }
 
         // inser in to database
-        await knex("order").where("id", id).update({ status: 0 });
+        await knex("order").where("id", orderId).update({ status: 0 });
 
         // update product Quantity in product table
         const currentData = await knex("product")

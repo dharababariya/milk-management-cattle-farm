@@ -8,7 +8,6 @@ const userAuthentication = async (req, res) => {
     //joi validation schema for login data
     const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
-
         password: Joi.string().required(),
     });
     try {
@@ -28,6 +27,7 @@ const userAuthentication = async (req, res) => {
         // if true
         else {
             return res.status(200).json({
+                success: true,
                 message: `Hello ${isUserExist[0].first_name}.`,
             });
         }
@@ -40,6 +40,6 @@ const userAuthentication = async (req, res) => {
         });
     }
 };
-router.post("/Login", userAuthentication);
+router.post("/login", userAuthentication);
 
 module.exports = router;

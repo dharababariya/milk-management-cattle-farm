@@ -24,7 +24,7 @@ app.use("/", require("./routes/user_management/update_user"));
 
 app.use("/", require("./routes/get_api/product_list"));
 app.use("/", require("./routes/get_api/bill_total"));
-app.use("/", require("./routes/get_api/order_list"));
+app.use("/", require("./routes/get_api/orders"));
 
 
 app.use("/", require("./routes/post_api/add_product"));
@@ -32,8 +32,8 @@ app.use("/", require("./routes/post_api/new_order"));
 
 app.use("/", require("./routes/update/order_deliver"));
 app.use("/", require("./routes/update/cancel_order"));
-app.use("/", require("./routes/update/update_milk_price"));
-app.use("/", require("./routes/update/update_milk_stock"));
+app.use("/", require("./routes/update/update_price"));
+app.use("/", require("./routes/update/update_stock"));
 
 
 // catch 404 and forward to error handler

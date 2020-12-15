@@ -14,7 +14,7 @@ const addProduct = async (req, res) => {
     try {
         //get data from body
         const newProduct = {
-            product_name: req.body.product,
+            product_name: String(req.body.product),
             price: req.body.price,
             quantity: req.body.quantity,
         };
@@ -32,6 +32,7 @@ const addProduct = async (req, res) => {
         await knex("product").insert(newProduct);
 
         return res.status(201).json({
+            success: true,
             message: "Product added",
         });
     } catch (err) {
@@ -44,6 +45,6 @@ const addProduct = async (req, res) => {
     }
 };
 
-router.post("/addProduct", addProduct);
+router.post("/products", addProduct);
 
 module.exports = router;

@@ -47,7 +47,7 @@ const updateUser = async (req, res) => {
                 .update(receiveData);
 
             return res.status(200).json({
-                Success: "OK",
+                success: true,
             });
         }
         //if in use
@@ -57,13 +57,13 @@ const updateUser = async (req, res) => {
     } catch (err) {
         return res.status(401).json({
             "error": {
-                status: "0",
+                success: false,
                 message: `${err}`,
             },
         });
     }
 };
 
-router.post("/updateUser", updateUser);
+router.put("/updateUser", updateUser);
 
 module.exports = router;

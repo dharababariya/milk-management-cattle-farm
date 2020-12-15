@@ -57,6 +57,6 @@ const newOrder = async (req, res) => {
     }
 };
 
-router.post("/newOrder", newOrder);
+router.post("/order", newOrder);
 
 module.exports = router;

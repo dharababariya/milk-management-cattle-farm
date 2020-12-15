@@ -22,8 +22,8 @@ const userRegistration = async (req, res) => {
     try {
         //get data from dody
         let receiveData = {
-            phone_number: req.body.phone_number,
-            password: req.body.password,
+            phone_number: Number(req.body.phone_number),
+            password: String(req.body.password),
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             address: req.body.address,
@@ -47,7 +47,7 @@ const userRegistration = async (req, res) => {
                 total: 0,
             });
             return res.status(201).json({
-                Success: "OK",
+                success: true,
             });
         }
         //if in use
@@ -64,6 +64,6 @@ const userRegistration = async (req, res) => {
     }
 };
 
-router.post("/Registration", userRegistration);
+router.post("/registration", userRegistration);
 
 module.exports = router;

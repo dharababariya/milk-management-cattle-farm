@@ -42,7 +42,7 @@ const orderDelivered = async (req, res) => {
             .where("phone_number", Number(order[0].phone_number));
 
         return res.status(200).json({
-            Success: "OK",
+            success: true,
         });
     } catch (err) {
         return res.status(401).json({
@@ -53,6 +53,6 @@ const orderDelivered = async (req, res) => {
         });
     }
 };
-router.post("/orderDelivered", orderDelivered);
+router.put("/orderDelivered", orderDelivered);
 
 module.exports = router;
