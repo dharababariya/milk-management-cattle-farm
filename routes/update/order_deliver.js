@@ -1,6 +1,6 @@
-const express = require("express");
+const { Router } = require("express");
+const router = Router();
 const Joi = require("joi");
-const router = express.Router();
 const knex = require("../../helper/knex");
 
 const orderDelivered = async (req, res) => {

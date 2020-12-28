@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("express");
+const router = Router();
 const knex = require("../../helper/knex");
 const Joi = require("joi");
 
@@ -9,7 +9,6 @@ const cancelOrder = async (req, res) => {
     const authSchema = Joi.object({
         orderId: Joi.number().required(),
     });
-
     try {
         // get data from body
         const { orderId } = req.body;

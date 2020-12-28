@@ -3,6 +3,10 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const passport = require("passport");
+const session = require("express-session");
+const knexSessionStore = require("connect-session-knex")(session);
+
 
 var app = express();
 
@@ -15,26 +19,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-
-// routs
-app.use("/", require("./routes/user_management/user_registration"));
-app.use("/", require("./routes/user_management/user_login"));
-app.use("/", require("./routes/user_management/update_user"));
-
-
-app.use("/", require("./routes/get_api/product_list"));
-app.use("/", require("./routes/get_api/bill_total"));
-app.use("/", require("./routes/get_api/orders"));
-
-
-app.use("/", require("./routes/post_api/add_product"));
-app.use("/", require("./routes/post_api/new_order"));
-
-app.use("/", require("./routes/update/order_deliver"));
-app.use("/", require("./routes/update/cancel_order"));
-app.use("/", require("./routes/update/update_price"));
-app.use("/", require("./routes/update/update_stock"));
-
+app.use(session({
+    secret:'secret',
+    cookie: { maxAge: 60000 },
+    resave:false,
+    saveUninitialized: true,
+    store: new knexSessionStore({
+        knex: require('./helper/knex'),
+        tablename: 'sessions',
+        sidfieldname: 'sid',
+        createtable: true,
+        clearInterval: 1000 * 60 * 60
+      })
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+require('./helper/local')
+// import all index routs
+app.use("/",require("./routes/index"))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

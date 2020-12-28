@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("express");
+const router = Router();
 const knex = require("../../helper/knex");
 const Joi = require("joi");
 
@@ -56,7 +56,7 @@ const updateUser = async (req, res) => {
         }
     } catch (err) {
         return res.status(401).json({
-            "error": {
+            error: {
                 success: false,
                 message: `${err}`,
             },

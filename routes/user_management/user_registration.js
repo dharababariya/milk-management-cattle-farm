@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("express");
+const router = Router();
 const knex = require("../../helper/knex");
 const Joi = require("joi");
 const { v4: uuidv4 } = require("uuid");
