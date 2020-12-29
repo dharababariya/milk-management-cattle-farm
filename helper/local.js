@@ -5,6 +5,7 @@ const knex = require("./knex");
 passport.serializeUser((user, done) => {
     done(null, user);
 });
+
 passport.deserializeUser(async (user, done) => {
     done(null, user);
 });
@@ -24,6 +25,7 @@ passport.use(
                         done(null, {
                             phone_number: result[0].phone_number,
                             id: result[0].id,
+                            role: result[0].role,
                         });
                     } else {
                         done(null, false);
