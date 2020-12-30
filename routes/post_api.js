@@ -23,14 +23,16 @@ const addProduct = async (req, res) => {
         await schema.validateAsync(newProduct); // validate data
 
         // check  prosuct is availabele
-        const isProductExist = await knex("product")
-            .where("product_name", newProduct.product_name)
-            .select("id");
-        if (isProductExist.length != 0) {
-            throw new Error("Product is Alrady Availble");
-        }
+        await knex.transaction(async (trx) => {
+            const isProductExist = await trx("product")
+                .where("product_name", newProduct.product_name)
+                .select("id");
+            if (isProductExist.length != 0) {
+                throw new Error("Product is Alrady Availble");
+            }
 
-        await knex("product").insert(newProduct);
+            await trx("product").insert(newProduct);
+        });
 
         return res.status(201).json({
             success: true,
@@ -72,26 +74,29 @@ const newOrder = async (req, res) => {
         //validate data
         await schema.validateAsync(receiveData);
         // get product price from database
-        const result = await knex("product")
-            .select("price", "quantity")
-            .where("product_name", receiveData.product)
-            .limit(1);
-        if (Number(result[0].quantity) <= 0) {
-            throw new Error(`${result[0].product_name} is outof stock`);
-        }
+        await knex.transaction(async (trx) => {
+            const result = await trx("product")
+                .select("price", "quantity")
+                .where("product_name", receiveData.product)
+                .limit(1);
+            if (Number(result[0].quantity) <= 0) {
+                throw new Error(`${result[0].product_name} is outof stock`);
+            }
 
-        //calculate total order
-        const price = parseInt(result[0].price);
-        const ans = price * receiveData.quantity;
-        receiveData.total = ans;
-        receiveData.status = 1;
+            //calculate total order
+            const price = parseInt(result[0].price);
+            const ans = price * receiveData.quantity;
+            receiveData.total = ans;
+            receiveData.status = 1;
 
-        // inser in to database
-        await knex("order").insert(receiveData);
-        const newQuantity = Number(result[0].quantity) - receiveData.quantity;
-        await knex("product")
-            .update("quantity", newQuantity)
-            .where("product_name", "=", receiveData.product);
+            // inser in to database
+            await trx("order").insert(receiveData);
+            const newQuantity =
+                Number(result[0].quantity) - receiveData.quantity;
+            await trx("product")
+                .update("quantity", newQuantity)
+                .where("product_name", "=", receiveData.product);
+        });
         // send resposnce
         return res.status(202).json({
             Total: receiveData.total,

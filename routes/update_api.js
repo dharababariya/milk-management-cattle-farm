@@ -2,7 +2,7 @@ const { Router } = require("express");
 const router = Router();
 const Joi = require("joi");
 const knex = require("../helper/knex");
-const auth = require("../helper/auth")
+const auth = require("../helper/auth");
 
 const orderDelivered = async (req, res) => {
     const schema = Joi.object({
@@ -15,35 +15,37 @@ const orderDelivered = async (req, res) => {
         //data validation
         await schema.validateAsync({ orderId });
         // chnage order status
-        const op = await knex("order")
-            .where({ id: orderId, status: 1 })
-            .update("status", "2");
-        console.log(op);
-        if (op == 0) {
-            throw new Error("this order is already delever or canceld");
-        }
-        // user order details
-        const order = await knex("order")
-            .select("phone_number", "total")
-            .where("id", orderId);
-        console.log(order);
+        await knex.transaction(async (trx) => {
+            const op = await trx("order")
+                .where({ id: orderId, status: 1 })
+                .update("status", "2");
+            console.log(op);
+            if (op == 0) {
+                throw new Error("this order is already delever or canceld");
+            }
+            // user order details
+            const order = await trx("order")
+                .select("phone_number", "total")
+                .where("id", orderId);
+            console.log(order);
 
-        //get priviuse bill total
-        const pymentTotal = await knex("payment_details")
-            .select("total")
-            .where("phone_number", Number(order[0].phone_number));
+            //get priviuse bill total
+            const pymentTotal = await trx("payment_details")
+                .select("total")
+                .where("phone_number", Number(order[0].phone_number));
 
-        console.log(pymentTotal);
+            console.log(pymentTotal);
 
-        const total = Number(pymentTotal[0].total) + Number(order[0].total); // add new order in bill
-        console.log(total);
-        // save new total in bill
-        await knex("payment_details")
-            .update("total", total)
-            .where("phone_number", Number(order[0].phone_number));
+            const total = Number(pymentTotal[0].total) + Number(order[0].total); // add new order in bill
+            console.log(total);
+            // save new total in bill
+            await trx("payment_details")
+                .update("total", total)
+                .where("phone_number", Number(order[0].phone_number));
 
-        return res.status(200).json({
-            success: true,
+            return res.status(200).json({
+                success: true,
+            });
         });
     } catch (err) {
         return res.status(401).json({
@@ -65,40 +67,41 @@ const cancelOrder = async (req, res) => {
         const { orderId } = req.body;
         //validate data
         await authSchema.validateAsync({ orderId });
+        await knex.transaction(async (trx) => {
+            // get order deatils  from database
+            const orderData = await trx("order")
+                .select("*")
+                .where("id", orderId)
+                .limit(1);
 
-        // get order deatils  from database
-        const orderData = await knex("order")
-            .select("*")
-            .where("id", orderId)
-            .limit(1);
+            //check order status
+            if (orderData[0].status == 2) {
+                throw new Error("your order is deleverd ");
+            }
 
-        //check order status
-        if (orderData[0].status == 2) {
-            throw new Error("your order is deleverd ");
-        }
+            if (orderData[0].status == 0) {
+                throw new Error("your order is alrady canceled  ");
+            }
 
-        if (orderData[0].status == 0) {
-            throw new Error("your order is alrady canceled  ");
-        }
+            // inser in to database
+            await trx("order").where("id", orderId).update({ status: 0 });
 
-        // inser in to database
-        await knex("order").where("id", orderId).update({ status: 0 });
+            // update product Quantity in product table
+            const currentData = await trx("product")
+                .select("*")
+                .where("product_name", orderData[0].product);
 
-        // update product Quantity in product table
-        const currentData = await knex("product")
-            .select("*")
-            .where("product_name", orderData[0].product);
+            const newQuantity =
+                Number(currentData[0].quantity) + Number(orderData[0].quantity);
 
-        const newQuantity =
-            Number(currentData[0].quantity) + Number(orderData[0].quantity);
+            await trx("product")
+                .update("quantity", newQuantity)
+                .where("product_name", orderData[0].product);
 
-        await knex("product")
-            .update("quantity", newQuantity)
-            .where("product_name", orderData[0].product);
-
-        // send resposnce
-        return res.status(202).json({
-            message: "order succsesfully canceled",
+            // send resposnce
+            return res.status(202).json({
+                message: "order succsesfully canceled",
+            });
         });
     } catch (err) {
         return res.status(400).json({
@@ -188,9 +191,25 @@ const addProductStock = async (req, res) => {
     }
 };
 
-router.put("/addProductStock",auth.ensureAuthenticated("admin"), addProductStock);
-router.put("/updateProductPrice",auth.ensureAuthenticated("admin"), updateProductPrice);
-router.put("/cancelOrder", auth.ensureAuthenticated("customer", "admin","vender"),cancelOrder);
-router.put("/orderDelivered",auth.ensureAuthenticated("vender"),orderDelivered);
+router.put(
+    "/addProductStock",
+    auth.ensureAuthenticated("admin"),
+    addProductStock
+);
+router.put(
+    "/updateProductPrice",
+    auth.ensureAuthenticated("admin"),
+    updateProductPrice
+);
+router.put(
+    "/cancelOrder",
+    auth.ensureAuthenticated("customer", "admin", "vender"),
+    cancelOrder
+);
+router.put(
+    "/orderDelivered",
+    auth.ensureAuthenticated("vender"),
+    orderDelivered
+);
 
 module.exports = router;
