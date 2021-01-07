@@ -3,18 +3,18 @@ const router = Router();
 const knex = require("../helper/knex");
 const Joi = require("joi");
 const { v4: uuidv4 } = require("uuid");
-const passport = require("passport")
+const passport = require("passport");
 const auth = require("../helper/auth");
 
 const userRegistration = async (req, res) => {
     // validation schemz
     const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
-        password: Joi.string().pattern(
-            new RegExp(
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-            )
-        ),
+        password: Joi.string(),
+        // .pattern(
+        //     new RegExp(
+        //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+        //     ))
         first_name: Joi.string().required(),
         last_name: Joi.string().required(),
         address: Joi.string().required(),
@@ -125,18 +125,34 @@ const updateUser = async (req, res) => {
         });
     }
 };
-
-router.put("/updateUser",auth.ensureAuthenticated("customer", "admin","vender") ,updateUser);
+const getUser = async (req, res) => {
+    const { user } = req;
+    let resut = [];
+    if (user.role == "customer" || user.role == "vender") {
+        resut = await knex("public.user_details")
+            .select("*")
+            .where("phone_number", user.phone_number);
+    } else if (user.role == "admin") {
+        resut = await knex("public.user_details").select("*");
+    }
+    return res.status(200).json(resut);
+};
+router.put(
+    "/updateUser",
+    auth.permit("customer", "admin", "vender"),
+    updateUser
+);
 router.post("/registration", userRegistration);
 router.post("/login", passport.authenticate("local"), (req, res) => {
     res.status(200).json({ msg: "logged in" });
 });
-
+router.get("/users",auth.permit("customer", "admin", "vender"), getUser);
 router.get("/logout", (req, res) => {
     req.logout();
     res.status(200).json({ msg: "logout" });
 });
-
-
+router.get("/", (req, res) => {
+    res.end(`<h1>milk-management-cattle-farm-backend<h1>`);
+});
 
 module.exports = router;

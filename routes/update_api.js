@@ -193,22 +193,22 @@ const addProductStock = async (req, res) => {
 
 router.put(
     "/addProductStock",
-    auth.ensureAuthenticated("admin"),
+    auth.permit("admin"),
     addProductStock
 );
 router.put(
     "/updateProductPrice",
-    auth.ensureAuthenticated("admin"),
+    auth.permit("admin"),
     updateProductPrice
 );
 router.put(
     "/cancelOrder",
-    auth.ensureAuthenticated("customer", "admin", "vender"),
+    auth.permit("customer", "admin", "vendor"),
     cancelOrder
 );
 router.put(
     "/orderDelivered",
-    auth.ensureAuthenticated("vender"),
+    auth.permit("vendor"),
     orderDelivered
 );
 

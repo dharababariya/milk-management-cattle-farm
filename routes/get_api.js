@@ -115,12 +115,12 @@ const getProductList = async (req, res) => {
 
 router.get(
     "/billTotal",
-    auth.ensureAuthenticated("customer", "admin"),
+    auth.permit("customer", "admin"),
     getBillTotal
 );
 router.get(
     "/orders",
-    auth.ensureAuthenticated("customer", "admin"),
+    auth.permit("customer", "admin"),
     getOrderList
 );
 router.get("/productList", getProductList);

@@ -111,7 +111,7 @@ const newOrder = async (req, res) => {
     }
 };
 
-router.post("/products", auth.ensureAuthenticated("admin"), addProduct);
-router.post("/order", auth.ensureAuthenticated("customer", "admin"), newOrder);
+router.post("/products", auth.permit("admin"), addProduct);
+router.post("/order", auth.permit("customer", "admin"), newOrder);
 
 module.exports = router;
