@@ -1,8 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 const Joi = require("joi");
-const knex = require("../helper/knex");
-const auth = require("../helper/auth");
+const knex = require("../db/knex");
 
 const orderDelivered = async (req, res) => {
     const schema = Joi.object({
@@ -191,25 +190,9 @@ const addProductStock = async (req, res) => {
     }
 };
 
-router.put(
-    "/addProductStock",
-    auth.ensureAuthenticated("admin"),
-    addProductStock
-);
-router.put(
-    "/updateProductPrice",
-    auth.ensureAuthenticated("admin"),
-    updateProductPrice
-);
-router.put(
-    "/cancelOrder",
-    auth.ensureAuthenticated("customer", "admin", "vender"),
-    cancelOrder
-);
-router.put(
-    "/orderDelivered",
-    auth.ensureAuthenticated("vender"),
-    orderDelivered
-);
+router.put("/addProductStock", addProductStock);
+router.put("/updateProductPrice", updateProductPrice);
+router.put("/cancelOrder", cancelOrder);
+router.put("/orderDelivered", orderDelivered);
 
 module.exports = router;

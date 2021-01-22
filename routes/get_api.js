@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const router = Router();
-const knex = require("../helper/knex");
-const auth = require("../helper/auth");
+const knex = require("../db/knex");
+
 
 const getBillTotal = async (req, res) => {
     const user = req.user;
@@ -113,16 +113,8 @@ const getProductList = async (req, res) => {
     return res.status(200).send(productList);
 };
 
-router.get(
-    "/billTotal",
-    auth.ensureAuthenticated("customer", "admin"),
-    getBillTotal
-);
-router.get(
-    "/orders",
-    auth.ensureAuthenticated("customer", "admin"),
-    getOrderList
-);
+router.get("/billTotal", getBillTotal);
+router.get("/orders", getOrderList);
 router.get("/productList", getProductList);
 
 module.exports = router;

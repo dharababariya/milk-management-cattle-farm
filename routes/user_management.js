@@ -1,20 +1,19 @@
 const { Router } = require("express");
 const router = Router();
-const knex = require("../helper/knex");
+const knex = require("../db/knex");
 const Joi = require("joi");
-const { v4: uuidv4 } = require("uuid");
-const passport = require("passport")
-const auth = require("../helper/auth");
+const { v4: uuidv4 } = require("uuid"),
+    { verifyToken, generateToken } = require("../helper/jwt");
 
 const userRegistration = async (req, res) => {
     // validation schemz
     const schema = Joi.object({
         phone_number: Joi.number().required().min(999999999).max(9999999999),
-        password: Joi.string().pattern(
-            new RegExp(
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-            )
-        ),
+        password: Joi.string(),
+        // .pattern(
+        //     new RegExp(
+        //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+        //     ))
         first_name: Joi.string().required(),
         last_name: Joi.string().required(),
         address: Joi.string().required(),
@@ -55,6 +54,43 @@ const userRegistration = async (req, res) => {
         //if in use
         else {
             return res.status(400).json({ error: "User already exists" });
+        }
+    } catch (err) {
+        return res.status(401).json({
+            error: {
+                status: "0",
+                message: `${err}`,
+            },
+        });
+    }
+};
+const userAuthentication = async (req, res) => {
+    //joi validation schema for login data
+    const schema = Joi.object({
+        phone_number: Joi.number().required().min(999999999).max(9999999999),
+        password: Joi.string().required(),
+    });
+    try {
+        // validate data
+        const result = await schema.validateAsync(req.body);
+
+        //check user in database
+        const user = await knex("user_details")
+            .select("*")
+            .where("phone_number", result.phone_number)
+            .andWhere("password", result.password)
+            .limit(1);
+        //if wrong pass or phone number
+        if (user.length < 1) {
+            throw new Error("invalid username or Password");
+        }
+        // if true
+        else {
+            let token = generateToken(user[0].email, user[0].role);
+            return res.status(200).json({
+                auth: true,
+                token,
+            });
         }
     } catch (err) {
         return res.status(401).json({
@@ -125,18 +161,29 @@ const updateUser = async (req, res) => {
         });
     }
 };
-
-router.put("/updateUser",auth.ensureAuthenticated("customer", "admin","vender") ,updateUser);
+const getUser = async (req, res) => {
+    const { user } = req;
+    let resut = [];
+    if (user.role == "customer" || user.role == "vender") {
+        resut = await knex("public.user_details")
+            .select("*")
+            .where("phone_number", user.phone_number);
+    } else if (user.role == "admin") {
+        resut = await knex("public.user_details").select("*");
+    }
+    return res.status(200).json(resut);
+};
+router.put("/updateUser", updateUser);
 router.post("/registration", userRegistration);
-router.post("/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json({ msg: "logged in" });
-});
 
+router.post("/login", userAuthentication);
+router.get("/users", getUser);
 router.get("/logout", (req, res) => {
     req.logout();
     res.status(200).json({ msg: "logout" });
 });
-
-
+router.get("/", verifyToken, (req, res) => {
+    res.end(`<h1>milk-management-cattle-farm-backend<h1>`);
+});
 
 module.exports = router;

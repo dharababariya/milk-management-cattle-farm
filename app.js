@@ -2,38 +2,14 @@ var createError = require("http-errors");
 var express = require("express");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const passport = require("passport");
-const session = require("express-session");
-const knexSessionStore = require("connect-session-knex")(session);
+
 
 var app = express();
-
-// view engine setup
-// app.set("views", path.join(__dirname, "views"));
-// app.set("view engine", "ejs");
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(
-    session({
-        secret: "secret",
-        cookie: { maxAge: 600000 },
-        resave: false,
-        saveUninitialized: true,
-        store: new knexSessionStore({
-            knex: require("./helper/knex"),
-            tablename: "sessions",
-            sidfieldname: "sid",
-            createtable: true,
-            clearInterval: 1000 * 60 * 60,
-        }),
-    })
-);
-app.use(passport.initialize());
-app.use(passport.session());
-require("./helper/local");
+
 
 // import all  routs
 app.use("/", require("./routes/get_api"));

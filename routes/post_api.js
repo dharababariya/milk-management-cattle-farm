@@ -1,8 +1,7 @@
 const { Router } = require("express");
 const router = Router();
-const knex = require("../helper/knex");
+const knex = require("../db/knex");
 const Joi = require("joi");
-const auth = require("../helper/auth");
 
 const addProduct = async (req, res) => {
     //joi validation schema
@@ -111,7 +110,7 @@ const newOrder = async (req, res) => {
     }
 };
 
-router.post("/products", auth.ensureAuthenticated("admin"), addProduct);
-router.post("/order", auth.ensureAuthenticated("customer", "admin"), newOrder);
+router.post("/products", addProduct);
+router.post("/order", newOrder);
 
 module.exports = router;
