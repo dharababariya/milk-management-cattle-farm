@@ -8,12 +8,13 @@ const { v4: uuidv4 } = require("uuid"),
 const userRegistration = async (req, res) => {
     // validation schemz
     const schema = Joi.object({
-        phone_number: Joi.number().required().min(999999999).max(9999999999),
+        phone_number: Joi.required(),
         password: Joi.string(),
         // .pattern(
         //     new RegExp(
         //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
         //     ))
+        email:Joi.string(),
         first_name: Joi.string().required(),
         last_name: Joi.string().required(),
         address: Joi.string().required(),
@@ -23,7 +24,8 @@ const userRegistration = async (req, res) => {
     try {
         //get data from dody
         let receiveData = {
-            phone_number: Number(req.body.phone_number),
+            phone_number: req.body.phone_number,
+            email : req.body.email,
             password: String(req.body.password),
             first_name: req.body.first_name,
             last_name: req.body.last_name,
@@ -35,14 +37,14 @@ const userRegistration = async (req, res) => {
         await schema.validateAsync(receiveData);
 
         //check is user phone number in used
-        const isUserExist = await knex("public.user_details")
+        const isUserExist = await knex("users")
             .select("*")
             .where("phone_number", receiveData.phone_number);
 
         //if not in use then
         if (isUserExist.length == 0) {
             receiveData.id = uuidv4();
-            await knex("user_details").insert(receiveData);
+            await knex("users").insert(receiveData);
             await knex("payment_details").insert({
                 phone_number: receiveData.phone_number,
                 total: 0,
@@ -67,7 +69,7 @@ const userRegistration = async (req, res) => {
 const userAuthentication = async (req, res) => {
     //joi validation schema for login data
     const schema = Joi.object({
-        phone_number: Joi.number().required().min(999999999).max(9999999999),
+        phone_number: Joi.required(),
         password: Joi.string().required(),
     });
     try {
@@ -75,8 +77,8 @@ const userAuthentication = async (req, res) => {
         const result = await schema.validateAsync(req.body);
 
         //check user in database
-        const user = await knex("user_details")
-            .select("*")
+        const user = await knex("users")
+            .select("id","phone_number","role")
             .where("phone_number", result.phone_number)
             .andWhere("password", result.password)
             .limit(1);
@@ -86,7 +88,11 @@ const userAuthentication = async (req, res) => {
         }
         // if true
         else {
-            let token = generateToken(user[0].email, user[0].role);
+            let token = generateToken(
+                user[0].id,
+                user[0].phone_number,
+                user[0].role
+            );
             return res.status(200).json({
                 auth: true,
                 token,
@@ -131,18 +137,13 @@ const updateUser = async (req, res) => {
         await schema.validateAsync(receiveData);
 
         //check is user phone number in used
-        const isUserExist = await knex("public.user_details")
+        const userData = await knex("users")
             .select("*")
-            .where("phone_number", receiveData.phone_number);
-
-        const phone_number = receiveData.phone_number;
-        delete receiveData["phone_number"];
+            .where("id", req.user.id);
 
         //if not in use then
-        if (isUserExist.length != 0) {
-            await knex("user_details")
-                .where("phone_number", phone_number)
-                .update(receiveData);
+        if (userData.length != 0) {
+            await knex("users").where("id", req.user.id).update(receiveData);
 
             return res.status(200).json({
                 success: true,
@@ -161,29 +162,33 @@ const updateUser = async (req, res) => {
         });
     }
 };
+
 const getUser = async (req, res) => {
     const { user } = req;
-    let resut = [];
+    console.log(user)
+    let result = [];
     if (user.role == "customer" || user.role == "vender") {
-        resut = await knex("public.user_details")
+        result = await knex("users")
             .select("*")
-            .where("phone_number", user.phone_number);
+            .where("id", user.userId);
     } else if (user.role == "admin") {
-        resut = await knex("public.user_details").select("*");
+        result = await knex("users").select("*");
     }
-    return res.status(200).json(resut);
+    return res.status(200).json(result);
 };
-router.put("/updateUser", updateUser);
+
+//routes
+router.put("/updateUser", verifyToken, updateUser);
 router.post("/registration", userRegistration);
 
 router.post("/login", userAuthentication);
-router.get("/users", getUser);
+router.get("/users",verifyToken, getUser);
 router.get("/logout", (req, res) => {
     req.logout();
     res.status(200).json({ msg: "logout" });
 });
 router.get("/", verifyToken, (req, res) => {
-    res.end(`<h1>milk-management-cattle-farm-backend<h1>`);
+    res.json(req.user);
 });
 
 module.exports = router;

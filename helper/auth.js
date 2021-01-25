@@ -1,5 +1,5 @@
 module.exports = {
-    ensureAuthenticated: (req, res, next) => {
+    permit: (req, res, next) => {
         if (req.isAuthenticated()) {
             return next();
         }
@@ -7,11 +7,10 @@ module.exports = {
         return res.status(403).send("Forbidden"); // if not auth
     },
 
-    forwardAuthenticated: (req, res, next) => {
+    forward: (req, res, next) => {
         if (!req.isAuthenticated()) {
             return next();
         }
-
         // res.redirect('/dashboard');  // if auth
         return next();
     },

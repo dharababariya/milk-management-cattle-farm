@@ -3,6 +3,7 @@ var jwt = require("jsonwebtoken"),
 
 verifyToken = (req, res, next) => {
     const bearerHeader = req.headers["authorization"];
+    console.log("6",bearerHeader)
     // headers["x-access-token"];
     if (typeof bearerHeader === "undefined")
         return res
@@ -16,15 +17,15 @@ verifyToken = (req, res, next) => {
                 auth: false,
                 message: "Failed to authenticate token.",
             });
-
+            console.log(decoded)
         // if everything good, save to request for use in other routes
-        req.user = { phone_number: decoded.phone_number, role : decoded.role };
+        req.user = { userId: decoded.id,phone_number: decoded.phone_number, role : decoded.role };
         next();
     });
 }
 
-const generateToken = (email, name) => {
-    const a = jwt.sign({ email, name }, process.env.SECRET, {
+const generateToken = (id , phone_number,role) => {
+    const a = jwt.sign({ id, phone_number,role }, process.env.SECRET, {
         expiresIn: "300s",
     });
     return a;

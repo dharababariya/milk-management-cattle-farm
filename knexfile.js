@@ -1,7 +1,7 @@
 // Update with your config settings.
 
 module.exports = {
-    development1: {
+    development: {
         client: "sqlite3",
         connection: {
             filename: "./dev.sqlite3",
@@ -10,12 +10,12 @@ module.exports = {
             directory: __dirname + "/db/migrations",
         },
         seeds: {
-            directory: __dirname + "/db/seeds",
+            directory: __dirname + "/db/seeds/dev",
         },
         useNullAsDefault: true,
     },
 
-    development: {
+    staging: {
         client: "pg",
         connection: {
             host: "localhost",
